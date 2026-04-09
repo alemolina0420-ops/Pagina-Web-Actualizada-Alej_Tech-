@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useCallback } from 'react';
-import type { User, LoginCredentials, RegisterData, UserRole } from '@/types';
+import React, { createContext, useContext, useCallback, useEffect, useState } from 'react';
+import type { User, StoredUser, Session, LoginCredentials, RegisterData, UserRole } from '@/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { hashPassword, verifyPassword, createSession, isSessionValid, sanitizeUserForOutput } from '@/lib/security';
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   isDeveloper: boolean;
@@ -18,94 +20,145 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Default developer account
-const defaultDeveloper: User = {
-  id: 'dev-001',
-  firstName: 'Desarrollador',
-  lastName: 'Principal',
-  phone: '04120000000',
-  email: 'dev@tecnostore.com',
-  password: 'DevAdmin2024!',
-  role: 'developer',
-  createdAt: new Date().toISOString(),
-};
+// Define default developer details (password will be hashed below)
+const DEFAULT_DEV_PLAIN_PASSWORD = 'DevAdmin2024!';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useLocalStorage<User | null>('currentUser', null);
-  const [users, setUsers] = useLocalStorage<User[]>('users', [defaultDeveloper]);
+  const [session, setSession] = useLocalStorage<Session | null>('userSession', null);
+  const [users, setUsers] = useLocalStorage<StoredUser[]>('users', []);
   const [error, setError] = useLocalStorage<string | null>('authError', null);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  // Initialize the default developer if no users exist
+  useEffect(() => {
+    const initDevAccount = async () => {
+      if (users.length === 0) {
+        const passwordHash = await hashPassword(DEFAULT_DEV_PLAIN_PASSWORD);
+        const defaultDeveloper: StoredUser = {
+          id: 'dev-001',
+          firstName: 'Desarrollador',
+          lastName: 'Principal',
+          phone: '04120000000',
+          email: 'dev@tecnostore.com',
+          passwordHash,
+          role: 'developer',
+          createdAt: new Date().toISOString(),
+        };
+        setUsers([defaultDeveloper]);
+      }
+      setIsInitializing(false);
+    };
+    initDevAccount();
+  }, [users, setUsers]);
+
+  // Validate session expiration automatically
+  useEffect(() => {
+    if (session && !isSessionValid(session)) {
+      setSession(null);
+    }
+  }, [session, setSession]);
 
   const clearError = useCallback(() => setError(null), [setError]);
 
-  const isAdmin = user?.role === 'admin' || user?.role === 'developer';
-  const isDeveloper = user?.role === 'developer';
+  // Derived state
+  const currentUserObj = session ? users.find(u => u.id === session.userId) : null;
+  const user = currentUserObj ? sanitizeUserForOutput(currentUserObj) : null;
+  
+  const isAuthenticated = !!session && isSessionValid(session);
+  const isAdmin = isAuthenticated && (session.role === 'admin' || session.role === 'developer');
+  const isDeveloper = isAuthenticated && session.role === 'developer';
 
   const login = useCallback(async (credentials: LoginCredentials): Promise<boolean> => {
     clearError();
-    const foundUser = users.find(
-      (u) => u.email === credentials.email && u.password === credentials.password
-    );
+    const foundUser = users.find((u) => u.email === credentials.email);
     
     if (foundUser) {
-      setUser(foundUser);
-      return true;
-    } else {
-      setError('Correo electrónico o contraseña incorrectos');
-      return false;
+      const isValid = await verifyPassword(credentials.password, foundUser.passwordHash);
+      if (isValid) {
+        const publicUser = sanitizeUserForOutput(foundUser);
+        const newSession = createSession(publicUser);
+        setSession(newSession);
+        return true;
+      }
     }
-  }, [users, setUser, setError, clearError]);
+    
+    // Generic error message for both wrong email and wrong password to prevent user enumeration
+    setError('Credenciales incorrectas');
+    return false;
+  }, [users, setSession, setError, clearError]);
 
   const register = useCallback(async (data: RegisterData): Promise<boolean> => {
     clearError();
     
-    // Check if email already exists
     if (users.some((u) => u.email === data.email)) {
       setError('Este correo electrónico ya está registrado');
       return false;
     }
 
-    // Check if phone already exists
     if (users.some((u) => u.phone === data.phone)) {
       setError('Este número telefónico ya está registrado');
       return false;
     }
 
-    const newUser: User = {
+    const passwordHash = await hashPassword(data.password);
+
+    const newUser: StoredUser = {
       id: Date.now().toString(),
       firstName: data.firstName,
       lastName: data.lastName,
       phone: data.phone,
       email: data.email,
-      password: data.password,
+      passwordHash,
       role: 'user', // Default role for new registrations
       createdAt: new Date().toISOString(),
     };
 
     setUsers((prev) => [...prev, newUser]);
-    setUser(newUser);
+    
+    // Auto-login
+    const publicUser = sanitizeUserForOutput(newUser);
+    const newSession = createSession(publicUser);
+    setSession(newSession);
+    
     return true;
-  }, [users, setUsers, setUser, setError, clearError]);
+  }, [users, setUsers, setSession, setError, clearError]);
 
   const logout = useCallback(() => {
-    setUser(null);
+    setSession(null);
     clearError();
-  }, [setUser, clearError]);
+  }, [setSession, clearError]);
 
   const promoteUser = useCallback((userId: string, role: UserRole) => {
+    // Only developers can promote users
+    if (!isDeveloper) {
+      console.warn('Unauthorized attempt to promote user');
+      return;
+    }
+
     setUsers((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, role } : u))
     );
-  }, [setUsers]);
+    
+    // If the developer promotes themselves (e.g. demotes), update their session accordingly
+    if (userId === session?.userId) {
+      setSession(prev => prev ? { ...prev, role } : null);
+    }
+  }, [setUsers, isDeveloper, session, setSession]);
 
   const getAllUsers = useCallback(() => {
-    return users;
+    // Return sanitized users (no password hashes)
+    return users.map(sanitizeUserForOutput);
   }, [users]);
+
+  // Wait for initial default user generation if database is empty
+  if (isInitializing) return null;
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        session,
+        isAuthenticated,
         isAdmin,
         isDeveloper,
         login,

@@ -7,9 +7,22 @@ export interface User {
   lastName: string;
   phone: string;
   email: string;
-  password: string;
   role: UserRole;
   createdAt: string;
+}
+
+export interface StoredUser extends User {
+  passwordHash: string;
+}
+
+export interface Session {
+  token: string;
+  userId: string;
+  role: UserRole;
+  firstName: string;
+  lastName: string;
+  email: string;
+  expiresAt: string;
 }
 
 export interface LoginCredentials {
