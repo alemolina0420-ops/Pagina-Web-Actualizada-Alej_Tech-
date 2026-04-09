@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 // Inner component
 function LoginPageContent() {
   const navigate = useNavigate();
-  const { login, error } = useAuth();
+  const { login, error, isAdmin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -29,7 +29,8 @@ function LoginPageContent() {
     });
     
     if (success) {
-      navigate('/');
+      // Redirect based on role: admins go to panel, users go to home
+      navigate(isAdmin ? '/admin' : '/');
     }
     
     setIsLoading(false);

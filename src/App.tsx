@@ -73,10 +73,12 @@ function LoadingFallback() {
   );
 }
 
-/** Admin Route Guard — requires authentication */
+/** Admin Route Guard — requires admin or developer role */
 function AdminRouteGuard() {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+  const { isAuthenticated, isAdmin } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (!isAdmin) return <Navigate to="/" />;
+  return <Outlet />;
 }
 
 /** Developer Route Guard — requires developer role */
