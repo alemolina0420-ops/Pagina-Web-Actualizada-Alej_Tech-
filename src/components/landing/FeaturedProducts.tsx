@@ -69,7 +69,7 @@ export function FeaturedProducts() {
                   </span>
                 )}
               </div>
-              <div className="p-4 flex flex-col h-[140px] justify-between">
+              <div className="p-4 flex flex-col min-h-[140px] justify-between">
                 <div>
                   <h3 className="font-semibold text-white mb-1 line-clamp-1">{product.name}</h3>
                   <p className="text-lg font-bold text-amber-400">${product.price}</p>

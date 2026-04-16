@@ -118,8 +118,7 @@ export function Navbar({
     return false;
   };
 
-  /** Accent color class based on current section */
-  const accentColor = section === 'servicios' ? 'purple' : 'blue';
+  /** Accent color classes based on current section */
   const accentClasses = {
     active: section === 'servicios' ? 'text-purple-400 bg-purple-500/10' : 'text-blue-400 bg-blue-500/10',
     activeBorder: section === 'servicios' ? 'border-purple-500/20' : 'border-blue-500/20',
@@ -587,7 +586,7 @@ export function Navbar({
                       navigate('/login');
                     }}
                     variant="outline"
-                    className={`w-full border-gray-700/50 text-gray-300 hover:text-white hover:border-${accentColor}-500/30 hover:bg-${accentColor}-500/5 rounded-xl py-2.5 text-sm font-medium`}
+                    className={`w-full border-gray-700/50 text-gray-300 hover:text-white ${accentClasses.hoverBg} rounded-xl py-2.5 text-sm font-medium`}
                   >
                     <User className="w-4 h-4 mr-2" />
                     Iniciar Sesión

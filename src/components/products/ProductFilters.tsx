@@ -59,7 +59,7 @@ export function ProductFilters({
         <div className="flex gap-4">
           <Select value={sortBy} onValueChange={onSortChange}>
             <SelectTrigger
-              className="w-40 bg-slate-800 border-slate-700 text-white"
+              className="w-full sm:w-40 bg-slate-800 border-slate-700 text-white"
               aria-label="Ordenar productos"
             >
               <SelectValue placeholder="Ordenar por" />
@@ -71,7 +71,7 @@ export function ProductFilters({
             </SelectContent>
           </Select>
 
-          <div className="flex bg-slate-800 rounded-lg p-1" role="group" aria-label="Modo de visualización">
+          <div className="flex bg-slate-800 rounded-lg p-1 flex-shrink-0" role="group" aria-label="Modo de visualización">
             <button
               onClick={() => onViewModeChange('grid')}
               className={`p-2 rounded transition-colors ${

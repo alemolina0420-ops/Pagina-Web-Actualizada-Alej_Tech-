@@ -142,9 +142,9 @@ export function ServiciosLandingPage() {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center max-w-4xl mx-auto">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 mb-8">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 mb-8 text-center flex-wrap justify-center">
               <Wrench className="w-4 h-4 text-purple-400" aria-hidden="true" />
-              <span className="text-sm font-medium text-purple-400 tracking-wide">
+              <span className="text-xs sm:text-sm font-medium text-purple-400 tracking-wide">
                 TÉCNICO ESPECIALISTA CERTIFICADO | TALLER SANTA LUCÍA DEL TUY
               </span>
             </div>
@@ -209,7 +209,7 @@ export function ServiciosLandingPage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {REPAIR_TYPES.map((repair) => {
               const colors = colorClasses[repair.color];
               return (

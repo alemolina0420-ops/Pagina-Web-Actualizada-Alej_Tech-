@@ -30,9 +30,9 @@ export function HeroSection() {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 mb-8">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 mb-8 text-center flex-wrap justify-center">
             <Cpu className="w-4 h-4 text-blue-400" aria-hidden="true" />
-            <span className="text-sm font-medium text-blue-400 tracking-wide">
+            <span className="text-xs sm:text-sm font-medium text-blue-400 tracking-wide">
               {siteConfig.technicianTitle.toUpperCase()} | TALLER {siteConfig.location.split(',')[0].toUpperCase()}
             </span>
           </div>

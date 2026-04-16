@@ -22,13 +22,13 @@ export function ProductListItem({ product, onBuyClick }: ProductListItemProps) {
   return (
     <article
       onClick={() => navigate(`/tienda/producto/${product.id}`)}
-      className="group cursor-pointer flex gap-6 p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 transition-all"
+      className="group cursor-pointer flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 transition-all"
       role="link"
       tabIndex={0}
       aria-label={`Ver detalles de ${product.name}`}
       onKeyDown={(e) => e.key === 'Enter' && navigate(`/tienda/producto/${product.id}`)}
     >
-      <div className="w-32 h-32 flex-shrink-0 rounded-xl bg-slate-800 overflow-hidden">
+      <div className="w-full sm:w-32 h-48 sm:h-32 flex-shrink-0 rounded-xl bg-slate-800 overflow-hidden">
         <img
           src={product.images?.[0] || '/placeholder-product.jpg'}
           alt={`${product.name} — ${product.shortDescription || 'Accesorio validado'}`}
