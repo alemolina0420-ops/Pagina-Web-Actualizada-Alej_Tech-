@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useCallback } from 'react';
+import React, { createContext, useContext, useCallback, useEffect } from 'react';
 import type { Product, Category, SiteConfig, SystemLog } from '@/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { getWhatsAppNumber } from '@/config/site.config';
 
 interface ProductsContextType {
   products: Product[];
@@ -28,7 +29,7 @@ const defaultSiteConfig: SiteConfig = {
   technicianTitle: 'Técnico Especializado en Dispositivos Móviles',
   location: 'Santa Lucía, Valles del Tuy',
   warrantyDays: 15,
-  whatsappNumber: '',
+  whatsappNumber: getWhatsAppNumber(),
   email: 'contacto@tecnostore.com',
   deliveryZones: ['Santa Lucía', 'Charallave', 'Cúa', 'Ocumare del Tuy', 'Zonas aledañas'],
   heroTitle: '¿Tu dispositivo merece accesorios que no han sido verificados por un técnico?',
@@ -610,6 +611,14 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   const [categories, setCategories] = useLocalStorage<Category[]>('categories', defaultCategories);
   const [siteConfig, setSiteConfig] = useLocalStorage<SiteConfig>('siteConfig', defaultSiteConfig);
   const [logs, setLogs] = useLocalStorage<SystemLog[]>('systemLogs', []);
+
+  // Auto-repair: if localStorage has empty whatsappNumber, patch it from .env
+  useEffect(() => {
+    const envNumber = getWhatsAppNumber();
+    if (!siteConfig.whatsappNumber && envNumber) {
+      setSiteConfig((prev) => ({ ...prev, whatsappNumber: envNumber }));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addLog = useCallback((log: Omit<SystemLog, 'id' | 'timestamp'>) => {
     const newLog: SystemLog = {

@@ -32,7 +32,14 @@ function cleanPhoneNumber(phone: string): string {
  * @param phoneOverride - Número de teléfono (si no se provee, usa el de env)
  */
 export function buildWhatsAppLink(message: string, phoneOverride?: string): string {
-  const phone = cleanPhoneNumber(phoneOverride || getWhatsAppNumber());
+  // Use phoneOverride only if it contains actual digits; otherwise fallback to env
+  const rawPhone = phoneOverride?.trim() || getWhatsAppNumber();
+  const phone = cleanPhoneNumber(rawPhone);
+
+  if (!phone) {
+    console.warn('[WhatsApp] No se encontró número de WhatsApp. Verifica VITE_WHATSAPP_NUMBER en .env');
+  }
+
   const safeMessage = sanitizeForUrl(message);
   return `https://wa.me/${phone}?text=${encodeURIComponent(safeMessage)}`;
 }
