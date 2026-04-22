@@ -59,7 +59,7 @@ export function HomePage() {
             </div>
 
             {/* Profile Avatar */}
-            <div className="flex justify-center mb-4 sm:mb-6 animate-fade-in-up delay-[50ms]">
+            <div className="flex justify-center mb-4 sm:mb-6 animate-fade-in-up [animation-delay:50ms]">
               <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full border-4 border-cyan-500/30 overflow-hidden shadow-[0_0_40px_rgba(6,182,212,0.15)] group">
                 <img 
                   src="/perfil-tecnico.jpg" 
