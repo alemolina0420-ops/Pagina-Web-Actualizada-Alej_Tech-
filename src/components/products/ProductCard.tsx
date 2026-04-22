@@ -49,13 +49,13 @@ export function ProductCard({ product, onBuyClick }: ProductCardProps) {
         )}
       </div>
 
-      <div className="p-4 flex flex-col justify-between flex-grow">
+      <div className="p-3 sm:p-4 flex flex-col justify-between flex-grow">
         <div>
-          <h3 className="font-semibold text-white mb-1 line-clamp-1">{product.name}</h3>
-          <p className="text-sm text-slate-400 mb-3 line-clamp-2">{product.shortDescription}</p>
+          <h3 className="font-semibold text-white mb-1 line-clamp-1 text-sm sm:text-base">{product.name}</h3>
+          <p className="text-xs sm:text-sm text-slate-400 mb-2 sm:mb-3 line-clamp-2 hidden sm:block">{product.shortDescription}</p>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <span className="text-lg font-bold text-amber-400">${product.price}</span>
+              <span className="text-base sm:text-lg font-bold text-amber-400">${product.price}</span>
               {product.originalPrice && (
                 <span className="ml-2 text-sm text-slate-500 line-through">
                   ${product.originalPrice}
@@ -78,8 +78,9 @@ export function ProductCard({ product, onBuyClick }: ProductCardProps) {
           onClick={(e) => onBuyClick(e, product)}
           aria-label={`Comprar ${product.name} por WhatsApp`}
         >
-          <MessageCircle className="w-4 h-4 mr-2" aria-hidden="true" />
-          Comprar por WhatsApp
+          <MessageCircle className="w-4 h-4 sm:mr-2" aria-hidden="true" />
+          <span className="hidden sm:inline">Comprar por WhatsApp</span>
+          <span className="sm:hidden">Comprar</span>
         </Button>
       </div>
     </article>

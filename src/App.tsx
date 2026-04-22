@@ -38,6 +38,10 @@ import { ContactoServiciosPage } from '@/pages/servicios/ContactoServiciosPage';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 
+// ── Legal pages ──
+import { PrivacyPolicyPage } from '@/pages/legal/PrivacyPolicyPage';
+import { TermsPage } from '@/pages/legal/TermsPage';
+
 // ── Admin pages (lazy loaded — code splitting for performance) ──
 const AdminLayout = lazy(() =>
   import('@/pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })),
@@ -132,6 +136,14 @@ function AppRoutes() {
          ══════════════════════════════════════════ */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+
+      {/* ══════════════════════════════════════════
+          LEGAL ROUTES
+         ══════════════════════════════════════════ */}
+      <Route element={<RootLayout />}>
+        <Route path="/privacidad" element={<PrivacyPolicyPage />} />
+        <Route path="/terminos" element={<TermsPage />} />
+      </Route>
 
       {/* ══════════════════════════════════════════
           ADMIN — Protected + Lazy Loaded

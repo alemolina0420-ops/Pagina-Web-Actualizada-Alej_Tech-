@@ -20,8 +20,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Define default developer details (password will be hashed below)
-const DEFAULT_DEV_PLAIN_PASSWORD = 'DevAdmin2024!';
+/**
+ * Genera una contraseña aleatoria segura.
+ * Solo se usa en el primer arranque para crear la cuenta developer.
+ */
+function generateSecurePassword(): string {
+  const length = 16;
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+  let password = '';
+  const array = new Uint32Array(length);
+  crypto.getRandomValues(array);
+  for (let i = 0; i < length; i++) {
+    password += charset[array[i] % charset.length];
+  }
+  return password;
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useLocalStorage<Session | null>('userSession', null);
@@ -33,7 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initDevAccount = async () => {
       if (users.length === 0) {
-        const passwordHash = await hashPassword(DEFAULT_DEV_PLAIN_PASSWORD);
+        // Generate a secure random password for the developer account
+        const generatedPassword = generateSecurePassword();
+        const passwordHash = await hashPassword(generatedPassword);
+        
         const defaultDeveloper: StoredUser = {
           id: 'dev-001',
           firstName: 'Desarrollador',
@@ -44,7 +60,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: 'developer',
           createdAt: new Date().toISOString(),
         };
+        
         setUsers([defaultDeveloper]);
+        
+        // Show credentials ONLY ONCE in console (for initial setup)
+        // IMPORTANT: This will only appear on first load when localStorage is empty
+        console.info(
+          '%c🔐 CREDENCIALES DE DESARROLLADOR (SOLO SE MUESTRA UNA VEZ)',
+          'background: #8b5cf6; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold;'
+        );
+        console.info(
+          '%cEmail: dev@tecnostore.com\nContraseña: ' + generatedPassword,
+          'background: #1e293b; color: #a78bfa; padding: 8px 12px; border-radius: 4px; font-family: monospace;'
+        );
+        console.info(
+          '%c⚠️ GUARDA ESTA CONTRASEÑA AHORA. No se volverá a mostrar.',
+          'background: #dc2626; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold;'
+        );
       }
       setIsInitializing(false);
     };

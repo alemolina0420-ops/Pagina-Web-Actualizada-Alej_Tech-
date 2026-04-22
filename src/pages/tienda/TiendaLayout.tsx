@@ -10,6 +10,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ProductsProvider, useProducts } from '@/contexts/ProductsContext';
+import { FloatingWhatsAppButton } from '@/components/shared/FloatingWhatsAppButton';
 
 function TiendaLayoutContent() {
   const { categories, products, siteConfig } = useProducts();
@@ -38,6 +39,9 @@ function TiendaLayoutContent() {
         email={siteConfig.email}
         location={siteConfig.location}
       />
+      
+      {/* Floating WhatsApp button */}
+      <FloatingWhatsAppButton position="bottom-left" />
     </div>
   );
 }

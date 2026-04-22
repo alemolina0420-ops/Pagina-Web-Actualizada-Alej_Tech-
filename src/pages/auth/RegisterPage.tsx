@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { validatePasswordStrength, getPasswordStrengthLabel, getPasswordStrengthColor, validateVenezuelanPhone, type PasswordStrength } from '@/lib/validation';
 
 // Inner component
 function RegisterPageContent() {
@@ -23,6 +24,7 @@ function RegisterPageContent() {
     confirmPassword: '',
   });
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({ score: 0, feedback: [], isValid: false });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,14 +36,16 @@ function RegisterPageContent() {
       return;
     }
     
-    if (formData.password.length < 6) {
-      setValidationError('La contraseña debe tener al menos 6 caracteres');
+    // Validate password strength
+    const strength = validatePasswordStrength(formData.password);
+    if (!strength.isValid) {
+      setValidationError(strength.feedback.join('. '));
       return;
     }
     
-    const phoneRegex = /^[0-9]{10,11}$/;
-    if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
-      setValidationError('Ingresa un número telefónico válido');
+    // Validate phone
+    if (!validateVenezuelanPhone(formData.phone)) {
+      setValidationError('Ingresa un número telefónico válido (ej: 0412-1234567)');
       return;
     }
     
@@ -60,6 +64,13 @@ function RegisterPageContent() {
     }
     
     setIsLoading(false);
+  };
+  
+  // Update password strength on password change
+  const handlePasswordChange = (password: string) => {
+    setFormData({ ...formData, password });
+    const strength = validatePasswordStrength(password);
+    setPasswordStrength(strength);
   };
 
   return (
@@ -173,7 +184,7 @@ function RegisterPageContent() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
                     className="pl-10 pr-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                     required
                   />
@@ -185,6 +196,41 @@ function RegisterPageContent() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                {formData.password && (
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400">Fortaleza:</span>
+                      <span className={`font-semibold ${getPasswordStrengthColor(passwordStrength.score)}`}>
+                        {getPasswordStrengthLabel(passwordStrength.score)}
+                      </span>
+                    </div>
+                    <div className="flex gap-1">
+                      {[0, 1, 2, 3, 4].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-1 flex-1 rounded-full transition-colors ${
+                            level < passwordStrength.score
+                              ? passwordStrength.score <= 1
+                                ? 'bg-red-500'
+                                : passwordStrength.score === 2
+                                ? 'bg-orange-500'
+                                : passwordStrength.score === 3
+                                ? 'bg-yellow-500'
+                                : 'bg-green-500'
+                              : 'bg-slate-700'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    {passwordStrength.feedback.length > 0 && (
+                      <ul className="text-xs text-slate-400 space-y-0.5 mt-1">
+                        {passwordStrength.feedback.map((item, idx) => (
+                          <li key={idx}>• {item}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </div>
               
               <div className="space-y-2">

@@ -22,7 +22,7 @@ export function FeaturedProducts() {
   return (
     <section className="py-24 bg-slate-900" aria-labelledby="featured-title">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12">
           <div>
             <h2 id="featured-title" className="text-3xl font-bold text-white mb-2">
               Productos Destacados
@@ -39,7 +39,7 @@ export function FeaturedProducts() {
           </Button>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {featuredProducts.map((product) => (
             <article
               key={product.id}

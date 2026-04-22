@@ -1,0 +1,46 @@
+# robots.txt para ALEJ_TECH | TecnoStore
+# https://tecnostore.vercel.app
+
+# Permitir acceso a todos los bots
+User-agent: *
+Allow: /
+
+# Bloquear acceso a rutas administrativas
+Disallow: /admin
+Disallow: /admin/*
+
+# Bloquear acceso a rutas de autenticación
+Disallow: /login
+Disallow: /register
+
+# Permitir explícitamente rutas públicas importantes
+Allow: /tienda
+Allow: /tienda/*
+Allow: /servicios
+Allow: /servicios/*
+
+# Sitemap
+Sitemap: https://tecnostore.vercel.app/sitemap.xml
+
+# Crawl-delay para bots agresivos (opcional)
+# Crawl-delay: 1
+
+# Bots específicos (opcional)
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Bloquear bots maliciosos conocidos
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

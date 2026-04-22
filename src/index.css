@@ -42,13 +42,17 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
   }
 }
 
@@ -79,6 +83,21 @@
     linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px),
     radial-gradient(circle 2px, rgba(139, 92, 246, 0.08) 1px, transparent 1px);
   background-size: 60px 60px, 60px 60px, 30px 30px;
+}
+
+/* Reduce pattern complexity on mobile for performance */
+@media (max-width: 640px) {
+  .grid-pattern {
+    background-size: 30px 30px;
+    opacity: 0.3 !important;
+  }
+  .circuit-pattern {
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.25 !important;
+  }
 }
 
 /* ============================================

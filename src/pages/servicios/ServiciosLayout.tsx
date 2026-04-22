@@ -9,6 +9,8 @@
 import { Outlet } from 'react-router-dom';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { UrgentRepairButton } from '@/components/shared/UrgentRepairButton';
+import { FloatingWhatsAppButton } from '@/components/shared/FloatingWhatsAppButton';
 
 export function ServiciosLayout() {
   return (
@@ -26,6 +28,12 @@ export function ServiciosLayout() {
         brandName="ALEJ_TECH"
         tagline="Servicio Técnico"
       />
+      
+      {/* Urgent repair button (only in servicios section) */}
+      <UrgentRepairButton />
+      
+      {/* Floating WhatsApp button */}
+      <FloatingWhatsAppButton position="bottom-left" />
     </div>
   );
 }

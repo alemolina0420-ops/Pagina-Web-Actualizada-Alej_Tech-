@@ -23,6 +23,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useProducts } from '@/contexts/ProductsContext';
 import type { Product, ProductSpec } from '@/types';
+import { sanitizeName, sanitizeText, sanitizePrice, sanitizeUrl } from '@/lib/sanitize';
 
 interface ProductFormData {
   name: string;
@@ -136,16 +137,23 @@ function ProductFormDialog({ isOpen, onClose, editingProduct, categories, onSave
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
 
+    // Sanitize all user inputs before saving
     const productData = {
-      name: formData.name,
+      name: sanitizeName(formData.name),
       category: formData.category,
-      price: parseFloat(formData.price),
-      originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
-      description: formData.description,
-      shortDescription: formData.shortDescription,
-      images: formData.images.length > 0 ? formData.images : ['/placeholder-product.jpg'],
-      specs: formData.specs,
-      features: formData.features.split('\n').filter((f) => f.trim()),
+      price: sanitizePrice(formData.price),
+      originalPrice: formData.originalPrice ? sanitizePrice(formData.originalPrice) : undefined,
+      description: sanitizeText(formData.description, 2000),
+      shortDescription: sanitizeText(formData.shortDescription, 200),
+      images: formData.images.length > 0 ? formData.images.map(img => sanitizeUrl(img) || img) : ['/placeholder-product.jpg'],
+      specs: formData.specs.map(spec => ({
+        label: sanitizeName(spec.label),
+        value: sanitizeText(spec.value, 100),
+      })),
+      features: formData.features
+        .split('\n')
+        .map(f => sanitizeText(f.trim(), 200))
+        .filter(f => f.length > 0),
       inStock: formData.inStock,
       isNew: formData.isNew,
       isBestseller: formData.isBestseller,

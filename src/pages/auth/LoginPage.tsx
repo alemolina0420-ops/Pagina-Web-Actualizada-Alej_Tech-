@@ -1,17 +1,23 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRateLimit } from '@/hooks/useRateLimit';
 
 // Inner component
 function LoginPageContent() {
   const navigate = useNavigate();
   const { login, error } = useAuth();
+  const { isBlocked, remainingAttempts, blockTimeRemaining, recordAttempt, reset } = useRateLimit('login', {
+    maxAttempts: 5,
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    blockDurationMs: 30 * 60 * 1000, // 30 minutos de bloqueo
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,6 +27,12 @@ function LoginPageContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if blocked by rate limiting
+    if (isBlocked) {
+      return;
+    }
+    
     setIsLoading(true);
     
     const success = await login({
@@ -29,22 +41,12 @@ function LoginPageContent() {
     });
     
     if (success) {
-      // Redirect based on role: admins go to panel, users go to home
-      // NOTE: We need to pull the current user after successful login, but isAdmin won't update in time synchronously.
-      // So we'll have to rely on AuthContext redirecting them when isAdmin changes, or fetch the user directly.
-      // Actually, since login returns a boolean, we can just redirect to / which will bounce admins back if we do it right,
-      // but waiting for state update might be tricky. Let's just wait a tiny tick for context to propagate before redirect.
-      setTimeout(() => {
-         // The redirection relies on AuthContext state update passing
-         // we just redirect to home and let guards sort it out, or navigate to admin if we're sure
-      }, 50);
-      
-      // We'll redirect to / and if they are admin, AdminRouteGuard will let them access admin links anyway.
-      // However, a direct redirection to /admin is better. Let's just go to /admin conditionally on location.state or just go to /
+      // Reset rate limit on successful login
+      reset();
       navigate('/');
     } else {
-      // Small artificial delay to slow down brute force attempts (Rate Limiting)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Record failed attempt
+      recordAttempt();
     }
     
     setIsLoading(false);
@@ -80,9 +82,28 @@ function LoginPageContent() {
           </CardHeader>
           
           <CardContent>
-            {error && (
+            {isBlocked && (
               <Alert className="mb-4 bg-red-500/10 border-red-500/30">
-                <AlertDescription className="text-red-400">{error}</AlertDescription>
+                <ShieldAlert className="w-4 h-4 text-red-400 mb-2" />
+                <AlertDescription className="text-red-400">
+                  <strong>Cuenta bloqueada temporalmente</strong>
+                  <br />
+                  Demasiados intentos fallidos. Intenta nuevamente en{' '}
+                  <strong>{Math.ceil(blockTimeRemaining / 60000)} minutos</strong>.
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {error && !isBlocked && (
+              <Alert className="mb-4 bg-red-500/10 border-red-500/30">
+                <AlertDescription className="text-red-400">
+                  {error}
+                  {remainingAttempts > 0 && remainingAttempts <= 3 && (
+                    <span className="block mt-1 text-xs">
+                      Intentos restantes: {remainingAttempts}
+                    </span>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
             
@@ -129,9 +150,9 @@ function LoginPageContent() {
               <Button
                 type="submit"
                 className="w-full btn-primary"
-                disabled={isLoading}
+                disabled={isLoading || isBlocked}
               >
-                {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                {isLoading ? 'Iniciando sesión...' : isBlocked ? 'Bloqueado' : 'Iniciar Sesión'}
               </Button>
             </form>
             

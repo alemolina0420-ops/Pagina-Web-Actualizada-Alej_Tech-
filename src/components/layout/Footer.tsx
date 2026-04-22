@@ -31,7 +31,7 @@ export function Footer({
   return (
     <footer className="bg-slate-950 border-t border-slate-800 py-12" role="contentinfo">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8">
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -118,6 +118,23 @@ export function Footer({
               {locationStr && <p className="text-slate-500 text-xs">{locationStr}</p>}
             </address>
           </div>
+
+          {/* Legal links */}
+          <nav aria-label="Enlaces legales">
+            <h4 className="font-semibold text-white mb-4">Legal</h4>
+            <ul className="space-y-2 text-sm text-slate-400">
+              <li>
+                <Link to="/privacidad" className="hover:text-white transition-colors">
+                  Política de Privacidad
+                </Link>
+              </li>
+              <li>
+                <Link to="/terminos" className="hover:text-white transition-colors">
+                  Términos y Condiciones
+                </Link>
+              </li>
+            </ul>
+          </nav>
         </div>
 
         {/* Bottom bar */}

@@ -6,9 +6,9 @@
  * Principio: Single Source of Truth para datos sensibles y constantes globales.
  */
 
-/** Número de WhatsApp leído desde env, con fallback vacío */
+/** Número de WhatsApp leído desde env, con fallback al número del negocio */
 export function getWhatsAppNumber(): string {
-  return import.meta.env.VITE_WHATSAPP_NUMBER ?? '';
+  return import.meta.env.VITE_WHATSAPP_NUMBER || '584123979581';
 }
 
 /** URL canónica del sitio */
@@ -23,7 +23,7 @@ export const DEFAULT_SEO = {
   defaultTitle: 'ALEJ_TECH | TecnoStore — Tienda y Servicio Técnico — Santa Lucía del Tuy, Valles del Tuy',
   defaultDescription:
     'Tienda de accesorios de calidad y servicio técnico de reparación de dispositivos móviles. Cargadores, cables, audífonos con garantía. Diagnóstico y reparación profesional. Santa Lucía del Tuy, Charallave, Cúa, Valles del Tuy.',
-  defaultOgImage: '/mesa-tecnica.jpg',
+  defaultOgImage: '/perfil-tecnico.jpg', // TODO: Cambiar a /mesa-tecnica.jpg cuando esté disponible
   locale: 'es_VE',
   geoRegion: 'VE-MI',
   geoPlacename: 'Santa Lucía del Tuy, Miranda, Venezuela',
