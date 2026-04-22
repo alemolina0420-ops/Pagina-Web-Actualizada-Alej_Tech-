@@ -53,12 +53,12 @@ function DeveloperPageContent() {
     toast.success('Datos exportados correctamente');
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     if (!importText.trim()) {
       toast.error('Pega los datos JSON primero');
       return;
     }
-    const success = importData(importText);
+    const success = await importData(importText);
     if (success) {
       toast.success('Datos importados correctamente');
       setImportText('');
@@ -72,9 +72,9 @@ function DeveloperPageContent() {
     if (!file) return;
     
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const content = event.target?.result as string;
-      const success = importData(content);
+      const success = await importData(content);
       if (success) {
         toast.success('Datos importados desde archivo');
       } else {
@@ -381,15 +381,16 @@ function DeveloperPageContent() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  if (confirm('¿Estás seguro? Esta acción no se puede deshacer.')) {
-                    localStorage.clear();
+                  if (confirm('¿Estás seguro? Esto cerrará la sesión y limpiará datos locales. Los productos en la nube NO se borran.')) {
+                    // Solo limpia datos de sesión/auth locales; los productos viven en Firestore
+                    ['userSession', 'users', 'authError', 'systemLogs'].forEach((k) => localStorage.removeItem(k));
                     window.location.reload();
                   }
                 }}
                 className="border-red-500/50 text-red-400 hover:bg-red-500/10"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Restablecer Todo
+                Restablecer Sesión Local
               </Button>
             </CardContent>
           </Card>
